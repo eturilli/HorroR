@@ -59,7 +59,12 @@ def index():
         if m.get('subgenre'): subgenres.append(m['subgenre'].strip().title())
 
     avg_overall = round(sum(all_scores) / total_count, 1) if total_count > 0 else 0
-    top_genre = Counter(subgenres).most_common(1)[0][0] if subgenres else "N/A"
+    if subgenres:
+        top_common = Counter(subgenres).most_common(1)[0]
+        percent = round((top_common[1] / len(subgenres)) * 100)
+        top_genre = f"{percent}% ({top_common[0].upper()})"
+    else:
+        top_genre = "N/A"
 
     if sort_mode == 'friends':
         ranked_movies = sorted(movies, key=lambda x: (x['friend_avg'] if isinstance(x['friend_avg'], float) else -1), reverse=True)
@@ -96,31 +101,46 @@ HTML_TEMPLATE = '''
 <!DOCTYPE html>
 <html>
 <head>
-    <title>THE GORE LIST</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>ROOM 237</title>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>html { scroll-behavior: smooth; } :root { --friend-bg: rgba(0, 200, 83, 0.1); }</style>
     <style>
         :root { --bg: #0a0a0a; --card: #161616; --accent: #e50914; --friend: #00c853; --text: #ffffff; --sub: #a0a0a0; }
         body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
         .container { max-width: 1000px; margin: auto; padding: 40px 20px; }
 
-        .main-nav { display: flex; gap: 30px; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 15px; }
+        header { text-align: center; margin-bottom: 40px; }
+        h1 { 
+            font-family: 'Creepster', cursive; 
+            font-size: 5.5rem; 
+            color: var(--accent); 
+            margin: 0; 
+            line-height: 1;
+            text-shadow: 4px 4px 0px #000, 0 0 30px rgba(229, 9, 20, 0.5);
+            letter-spacing: 5px;
+            text-transform: uppercase;
+        }
+        .main-nav { display: flex; justify-content: center; gap: 40px; margin-top: 25px; border-bottom: 1px solid #222; padding-bottom: 20px; }
         .nav-link { text-decoration: none; color: var(--sub); font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
-        .nav-link.active { color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 13px; }
+        .nav-link.active { color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 18px; }
 
         .search-container { margin-bottom: 25px; }
         #movieSearch {
             width: 100%;
             background: transparent;
             border: none;
-            border-bottom: 2px solid #333;
+            border-bottom: 1px solid transparent;
             color: white;
             padding: 10px;
             font-size: 1.1em;
             outline: none;
-            transition: border-color 0.3s;
+            transition: border-bottom 0.3s;
         }
-        #movieSearch:focus { border-color: var(--accent); }
+        #movieSearch:focus { border-bottom: 1px solid var(--accent); }
+        #movieSearch::placeholder {
+            font-family: 'Courier New', Courier, monospace;
+            color: var(--accent);
+        }
 
         .stats-ribbon { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
         .stat-card { background: var(--card); padding: 15px; border-radius: 10px; border: 1px solid #333; text-align: center; }
@@ -135,14 +155,14 @@ HTML_TEMPLATE = '''
         }
         .hero-card:hover { border-color: var(--accent); transform: translateY(-2px); }
         .hero-card::after { content: ''; position: absolute; top: 0; right: 0; width: 100px; height: 100%; background: linear-gradient(90deg, transparent, rgba(229, 9, 20, 0.05)); }
-        .hero-poster-mini { width: 70px; height: 100px; object-fit: cover; border-radius: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .hero-poster-mini { width: 70px; height: 100px; object-fit: contain; background: #000; border-radius: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         .hero-info h4 { margin: 0; font-size: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; }
         .hero-info h2 { margin: 5px 0; font-size: 1.3em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
         .hero-score { font-size: 1.5em; font-weight: 900; color: var(--text); }
 
         .movie-card { background: var(--card); border-radius: 12px; display: flex; flex-wrap: wrap; margin-bottom: 20px; border: 1px solid #222; overflow: hidden; cursor: pointer; transition: transform 0.2s; align-items: stretch; }
         .movie-card:hover { border-color: #444; }
-        .poster { width: 160px; height: 260px; object-fit: cover; }
+        .poster { width: 160px; height: 260px; object-fit: contain; background: #000; }
         .content { padding: 20px; flex: 1; min-width: 300px; position: relative; }
         .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
         .badge { text-align: center; padding: 4px 8px; border-radius: 6px; min-width: 45px; border: 1px solid; display: inline-block; }
@@ -171,7 +191,7 @@ HTML_TEMPLATE = '''
 <body>
     <div class="container">
         <header>
-            <h1>THE GORE LIST</h1>
+            <h1>ROOM 237</h1>
             <nav class="main-nav">
                 <a href="/" class="nav-link {{ 'active' if page == 'home' }}">The Rankings</a>
                 <a href="/watchlist" class="nav-link {{ 'active' if page == 'watchlist' }}">Watchlist</a>
@@ -181,7 +201,7 @@ HTML_TEMPLATE = '''
 
         {% if page != 'about' %}
         <div class="search-container">
-            <input type="text" id="movieSearch" onkeyup="filterMovies()" placeholder="Search by title, year, or subgenre...">
+            <input type="text" id="movieSearch" onkeyup="filterMovies()" placeholder="Search by title, year, or subgenre... _">
         </div>
         {% endif %}
 
@@ -202,17 +222,21 @@ HTML_TEMPLATE = '''
         {% if top_movie %}
         <div class="dashboard-hero">
             <a href="#movie-{{ top_movie.id }}" class="hero-card">
-                <img src="{{ top_movie.poster }}" class="hero-poster-mini" onerror="this.src='https://via.placeholder.com/70x100?text=? '">
+                <div class="poster-grain hero-poster-wrapper">
+                    <img src="{{ top_movie.poster }}" class="hero-poster-mini" onerror="this.src='https://via.placeholder.com/70x100?text=? '">
+                </div>
                 <div class="hero-info">
-                    <h4>Hall of Fame</h4>
+                    <h4>&#9733;</h4>
                     <h2>{{ top_movie.title }}</h2>
                     <div class="hero-score">{{ top_movie.avg }} <span style="font-size: 12px; color: var(--sub);">MASTER SCORE</span></div>
                 </div>
             </a>
             <a href="#movie-{{ latest_movie.id }}" class="hero-card">
-                <img src="{{ latest_movie.poster }}" class="hero-poster-mini" onerror="this.src='https://via.placeholder.com/70x100?text=? '">
+                <div class="poster-grain hero-poster-wrapper">
+                    <img src="{{ latest_movie.poster }}" class="hero-poster-mini" onerror="this.src='https://via.placeholder.com/70x100?text=? '">
+                </div>
                 <div class="hero-info">
-                    <h4>Latest Entry</h4>
+                    <h4>&#127381;</h4>
                     <h2>{{ latest_movie.title }}</h2>
                     <div class="hero-score">{{ latest_movie.avg }} <span style="font-size: 12px; color: var(--sub);">MASTER SCORE</span></div>
                 </div>
@@ -223,7 +247,7 @@ HTML_TEMPLATE = '''
 
         {% if page == 'about' %}
         <div class="about-section">
-            <div class="about-header">HOW WE RANK THE GORE</div>
+            <div class="about-header">HOW WE RANK ROOM 237</div>
             <p style="color: var(--sub); margin-bottom: 30px;">Every movie is rated on a scale of 0 to 10 across five distinct categories. The average of these scores creates the <strong>Master Score</strong>.</p>
 
             <div class="about-card">
@@ -253,7 +277,9 @@ HTML_TEMPLATE = '''
         <div id="movieGrid">
             {% for movie in movies %}
             <div class="movie-card" id="movie-{{ movie.id }}" onclick="toggleDetails('{{ movie.id }}')">
-                <img src="{{ movie.poster }}" class="poster" onerror="this.src='https://via.placeholder.com/160x260?text=No+Poster'">
+                <div class="poster-grain">
+                    <img src="{{ movie.poster }}" class="poster" onerror="this.src='https://via.placeholder.com/160x260?text=No+Poster'">
+                </div>
                 <div class="content">
                     <div style="color:var(--sub); font-size: 0.7em; font-weight:900; text-transform: uppercase; letter-spacing: 0.5px;">{{ movie.year }} • {{ movie.subgenre }}</div>
                     <div style="font-size: 1.6em; font-weight: 900; margin: 4px 0 8px 0; line-height: 1.2;">
@@ -371,7 +397,9 @@ HTML_TEMPLATE = '''
 
             container.innerHTML = recos.map(r => `
                 <a href="#movie-${r.id}" class="reco-item" onclick="toggleDetails('${r.id}')">
-                    <img src="${r.poster}" class="reco-poster" onerror="this.src='https://via.placeholder.com/40x60'">
+                    <div class="poster-grain" style="border-radius: 4px; width: 40px; height: 60px;">
+                        <img src="${r.poster}" class="reco-poster" style="width: 100%; height: 100%; border-radius: 0;" onerror="this.src='https://via.placeholder.com/40x60'">
+                    </div>
                     <div style="flex-grow:1">
                         <div style="font-size: 11px; font-weight: 900;">${r.title}</div>
                         <div style="font-size: 9px; color: var(--sub);">${r.subgenre}</div>
