@@ -1,0 +1,6 @@
+keys
+keys.pub
+fill_json.py
+test.py
+__pycache__/
+.env

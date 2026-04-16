@@ -16,6 +16,14 @@ def load_movies():
                 m['status'] = 'ranked'
             if 'series' not in m:
                 m['series'] = ''
+            if 'director' not in m:
+                m['director'] = ''
+            if 'starring' not in m:
+                m['starring'] = ''
+            if 'synopsis' not in m:
+                m['synopsis'] = ''
+            if 'watch_count' not in m:
+                m['watch_count'] = 1
         return data
 
 @app.route('/')
@@ -132,10 +140,10 @@ HTML_TEMPLATE = '''
         .hero-info h2 { margin: 5px 0; font-size: 1.3em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
         .hero-score { font-size: 1.5em; font-weight: 900; color: var(--text); }
 
-        .movie-card { background: var(--card); border-radius: 12px; display: flex; flex-wrap: wrap; margin-bottom: 20px; border: 1px solid #222; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
+        .movie-card { background: var(--card); border-radius: 12px; display: flex; flex-wrap: wrap; margin-bottom: 20px; border: 1px solid #222; overflow: hidden; cursor: pointer; transition: transform 0.2s; align-items: stretch; }
         .movie-card:hover { border-color: #444; }
         .poster { width: 160px; height: 260px; object-fit: cover; }
-        .content { padding: 20px; flex-grow: 1; position: relative; }
+        .content { padding: 20px; flex: 1; min-width: 300px; position: relative; }
         .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
         .badge { text-align: center; padding: 4px 8px; border-radius: 6px; min-width: 45px; border: 1px solid; display: inline-block; }
 
@@ -247,16 +255,28 @@ HTML_TEMPLATE = '''
             <div class="movie-card" id="movie-{{ movie.id }}" onclick="toggleDetails('{{ movie.id }}')">
                 <img src="{{ movie.poster }}" class="poster" onerror="this.src='https://via.placeholder.com/160x260?text=No+Poster'">
                 <div class="content">
-                    <div class="card-header">
-                        <div>
-                            <div style="color:var(--sub); font-size: 0.7em; font-weight:bold;">{{ movie.year }} • {{ movie.subgenre }}</div>
-                            <div style="font-size: 1.6em; font-weight: 900; margin: 2px 0;">
-                                {{ movie.title }}
-                                {% if movie.series %}
-                                <a href="/?series={{ movie.series }}" class="series-tag" onclick="event.stopPropagation()">{{ movie.series }} Series</a>
-                                {% endif %}
-                            </div>
-                        </div>
+                    <div style="color:var(--sub); font-size: 0.7em; font-weight:900; text-transform: uppercase; letter-spacing: 0.5px;">{{ movie.year }} • {{ movie.subgenre }}</div>
+                    <div style="font-size: 1.6em; font-weight: 900; margin: 4px 0 8px 0; line-height: 1.2;">
+                        {{ movie.title }}
+                        {% if movie.series %}
+                        <a href="/?series={{ movie.series }}" class="series-tag" onclick="event.stopPropagation()">{{ movie.series }} Series</a>
+                        {% endif %}
+                    </div>
+                    {% if movie.director %}<div style="font-size: 0.8em; color: var(--sub); margin-top: 5px;">Directed by: {{ movie.director }}</div>{% endif %}
+                    {% if movie.starring %}<div style="font-size: 0.8em; color: var(--sub);">Starring: {{ movie.starring }}</div>{% endif %}
+                    
+                    {% if movie.synopsis %}
+                    <p style="font-size: 0.9em; color: #ccc; margin-top: 10px; line-height: 1.4; margin-bottom: 12px;">{{ movie.synopsis }}</p>
+                    {% endif %}
+
+                    <div style="display: flex; gap: 15px; align-items: center; margin-top: auto; padding-top: 10px; margin-bottom: 10px;">
+                        {% if movie.trailer %}
+                        <a href="{{ movie.trailer }}" target="_blank" style="color:var(--accent); font-size:10px; text-decoration:none; font-weight:bold; letter-spacing: 1px;" onclick="event.stopPropagation()">WATCH TRAILER</a>
+                        {% endif %}
+                        <span style="font-size: 9px; color: var(--sub); font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Views: {{ movie.watch_count }}</span>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
                         {% if page == 'home' %}
                         <div style="display: flex; gap: 8px;">
                             <div class="badge" style="color:var(--accent); border-color:var(--accent);"><div style="font-size:1em; font-weight:900;">{{ movie.avg }}</div><div style="font-size:6px;">MASTER</div></div>
@@ -264,12 +284,6 @@ HTML_TEMPLATE = '''
                         </div>
                         {% endif %}
                     </div>
-
-                    {% if movie.trailer %}
-                    <div style="margin-top:15px;" onclick="event.stopPropagation()">
-                        <a href="{{ movie.trailer }}" target="_blank" style="color:var(--accent); font-size:10px; text-decoration:none; font-weight:bold;">TRAILER</a>
-                    </div>
-                    {% endif %}
                 </div>
 
                 <div class="detail-pane" id="details-{{ movie.id }}" onclick="event.stopPropagation()">
