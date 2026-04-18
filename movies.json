@@ -2321,7 +2321,14 @@
         "story": "6.6",
         "acting": "7.1",
         "originality": "5.5",
-        "friend_scores": [],
-        "status": "ranked"
+        "status": "ranked",
+        "friend_scores": [
+            {
+                "score": 6.4,
+                "name": "Philip Hudson",
+                "date": "Apr 18, 2026"
+            }
+        ],
+        "watch_count": 1
     }
 ]
