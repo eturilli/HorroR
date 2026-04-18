@@ -1476,7 +1476,8 @@
         "acting": "5.1",
         "originality": "5.5",
         "status": "ranked",
-        "friend_scores": []
+        "friend_scores": [],
+        "watch_count": 1
     },
     {
         "title": "Get Out",
@@ -2303,5 +2304,24 @@
         "starring": "Michael B. Jordan, Hailee Steinfeld",
         "synopsis": "",
         "watch_count": 1
+    },
+    {
+        "title": "Get Out",
+        "year": "2017",
+        "subgenre": "psychological",
+        "series": "",
+        "director": "Jordan Peel",
+        "starring": "Daniel Kaluuya, Allison Williams",
+        "synopsis": "Now that Chris and his girlfriend, Rose, have reached the meet-the-parents milestone of dating, she invites him for a weekend getaway upstate with her parents, Missy and Dean. At first, Chris reads the family's overly accommodating behaviour as nervous attempts to deal with their daughter's interracial relationship, but as the weekend progresses, a series of increasingly disturbing discoveries leads him to a truth that he never could have imagined.",
+        "poster": "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcR1wQ2BpfiaW0uOpXSEUmgg-Ea42e1L9PvIJHaoxE_BEawBUaaO",
+        "trailer": "https://www.youtube.com/watch?v=DzfpyUB60YY&themeRefresh=1",
+        "notes": "",
+        "scare": "3.5",
+        "atmosphere": "7.1",
+        "story": "6.6",
+        "acting": "7.1",
+        "originality": "5.5",
+        "friend_scores": [],
+        "status": "ranked"
     }
 ]
